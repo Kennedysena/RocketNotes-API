@@ -1,6 +1,7 @@
 require('express-async-errors');
 const migrationsRun = require("./database/sqlite/migrations");
 const AppError = require("./utils/AppError");
+const uploadConfig = require("./configs/upload")
 
 const express = require("express");
 const routes = require("./routes");
@@ -9,6 +10,7 @@ migrationsRun();
 const app = express();
 app.use(express.json()); // conteúdo em json para dessa forma eu conseguir ver e manipular as informações do body da requisição
 
+app.use("/files", express.static(uploadConfig.UPLOADS_FOLDER));
 // "/message/:id/:user"; esse forma de parâmetros é para dados mais simples
 // response devolver a resposta para quem solicitou a resposta
 // request consegue ver a informações que estão sendo enviadas para a nossa aplicação
