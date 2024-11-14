@@ -29,6 +29,7 @@ class NotesController {
     });
 
     await knex("tags").insert(tagsInsert);
+  
 
     return response.status(201).json();
   }
@@ -66,10 +67,10 @@ class NotesController {
       notes = await knex("tags")
         .select(["notes.id", "notes.title", "notes.user_id"])
         .where("notes.user_id", user_id)
-        .whereLike("notes.title", `%${title}%`)
-        .whereIn("name", filterTags)
+        .whereLike("title", `%${title}%`)
+        .whereIn("tags.name", filterTags)
         .innerJoin("notes", "note_id", "tags.notes_id")
-        .orderBy("title");
+        .orderBy("notes.title")
     } else {
       notes = await knex("notes")
         .where({ user_id })
