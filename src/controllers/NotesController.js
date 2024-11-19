@@ -20,16 +20,19 @@ class NotesController {
 
     await knex("links").insert(linksInsert);
 
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
     const tagsInsert = tags.map((name) => {
       return {
         note_id,
-        name,
+        name: capitalizeFirstLetter(name),
         user_id,
       };
     });
 
     await knex("tags").insert(tagsInsert);
-  
 
     return response.status(201).json();
   }
@@ -69,8 +72,9 @@ class NotesController {
         .where("notes.user_id", user_id)
         .whereLike("title", `%${title}%`)
         .whereIn("tags.name", filterTags)
-        .innerJoin("notes", "note_id", "tags.notes_id")
-        .orderBy("notes.title")
+        .innerJoin("notes", "notes.id", "tags.note_id")
+        .groupBy("notes.id")
+        .orderBy("notes.title");
     } else {
       notes = await knex("notes")
         .where({ user_id })
@@ -79,7 +83,7 @@ class NotesController {
     }
 
     const userTags = await knex("tags").where({ user_id });
-    
+
     const notesWithTags = notes.map((note) => {
       const noteTags = userTags.filter((tag) => tag.note_id === note.id);
 
