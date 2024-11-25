@@ -2,7 +2,7 @@ const knex = require("../database/knex");
 
 class NotesController {
   async create(request, response) {
-    const { title, description, tags, links } = request.body;
+    const { title, description, links = [], tags } = request.body;
     const user_id = request.user.id;
 
     const [note_id] = await knex("notes").insert({
@@ -11,14 +11,16 @@ class NotesController {
       user_id,
     });
 
-    const linksInsert = links.map((link) => {
-      return {
-        note_id,
-        url: link,
-      };
-    });
+    if (links.length  > 0) {
+      const linksInsert = links.map((link) => {
+        return {
+          note_id,
+          url: link
+        };
+      });
 
-    await knex("links").insert(linksInsert);
+      await knex("links").insert(linksInsert);
+    }
 
     function capitalizeFirstLetter(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
